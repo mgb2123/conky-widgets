@@ -1,0 +1,63 @@
+# **********************************************************************
+# "Sistema" - widget de red, disco, GPU y actualizaciones a juego con
+# "Process Panel", "Gotham" y "Temperatura".
+# **********************************************************************
+
+background yes
+double_buffer yes
+
+lua_load /home/USUARIO/.conky/scripts/click_actions.lua
+lua_mouse_hook conky_click_sistema
+
+alignment top_right
+
+border_width 1
+default_color white
+default_outline_color white
+default_shade_color white
+draw_borders no
+draw_graph_borders yes
+draw_outline no
+draw_shades no
+
+gap_x 20
+gap_y 467
+no_buffers yes
+out_to_console no
+out_to_stderr no
+extra_newline no
+
+own_window yes
+own_window_type normal
+own_window_transparent yes
+own_window_colour 000000
+own_window_argb_visual no
+own_window_argb_value 0
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+
+minimum_size 210 0
+stippled_borders 0
+update_interval 2.0
+uppercase no
+use_spacer none
+
+use_xft yes
+xftalpha 0.8
+xftfont Droid Sans:size=11
+color0 white
+color1 EAEAEA
+color2 FFA300
+color3 grey
+
+TEXT
+${color2}RED ${color0}
+${color2}${hr 1}${color0}
+${color3}Bajada ${color EAEAEA}${downspeed wlo1}${color3}  Subida ${color EAEAEA}${upspeed wlo1}${color0}
+${color3}Senal WiFi${alignr}${if_match ${wireless_link_qual_perc wlo1}<30}${color FF3333}${else}${if_match ${wireless_link_qual_perc wlo1}<60}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${wireless_link_qual_perc wlo1}%${color0}
+
+${color2}DISCO (/) ${color0}${alignr}${if_match ${fs_used_perc /}>90}${color FF3333}${else}${if_match ${fs_used_perc /}>75}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${fs_used_perc /}%${color0}
+${if_match ${fs_used_perc /}>90}${color FF3333}${else}${if_match ${fs_used_perc /}>75}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${fs_bar 6,150 /}${color0}
+${color3}${fs_used /} / ${fs_size /}${color0}
+${color2}${hr 1}${color0}
+${color3}GPU (iGPU)${alignr}${if_match ${execi 2 /home/USUARIO/.conky/scripts/gpu_usage.sh}>85}${color FF3333}${else}${if_match ${execi 2 /home/USUARIO/.conky/scripts/gpu_usage.sh}>60}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${execi 2 /home/USUARIO/.conky/scripts/gpu_usage.sh}%${color0}
+${color3}Actualizaciones${alignr}${if_match ${execi 3600 /home/USUARIO/.conky/scripts/apt_updates.sh}>150}${color FF3333}${else}${if_match ${execi 3600 /home/USUARIO/.conky/scripts/apt_updates.sh}>50}${color FFA300}${else}${color EAEAEA}${endif}${endif}${execi 3600 /home/USUARIO/.conky/scripts/apt_updates.sh} pkg${color0}

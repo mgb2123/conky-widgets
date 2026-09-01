@@ -1,0 +1,75 @@
+# **********************************************************************
+# "CPU Panel (8-core)" theme for Conky by Tony George (teejee2008@gmail.com)
+#
+# Webpage: http://teejeetech.blogspot.in/
+# **********************************************************************
+
+
+background yes
+double_buffer yes
+
+lua_load /home/USUARIO/.conky/scripts/click_actions.lua
+lua_mouse_hook conky_click_process_panel
+
+alignment top_right
+
+border_width 1
+cpu_avg_samples 2
+default_color white
+default_outline_color white
+default_shade_color white
+draw_borders no
+draw_graph_borders yes
+draw_outline no
+draw_shades no
+
+gap_x 20
+gap_y 728
+net_avg_samples 2
+no_buffers yes
+out_to_console no
+out_to_stderr no
+extra_newline no
+
+own_window yes
+own_window_type normal
+own_window_transparent yes
+own_window_colour 000000
+own_window_argb_visual no
+own_window_argb_value 0
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+
+minimum_size 210 0
+stippled_borders 0
+update_interval 2.0
+uppercase no
+use_spacer none
+
+show_graph_scale no
+show_graph_range no
+
+use_xft yes
+xftalpha 0.8
+xftfont Droid Sans:size=11
+color0 white
+color1 EAEAEA
+color2 FFA300
+color3 grey
+
+TEXT
+${color2}CPU ${color0}${alignr}${if_match ${cpu cpu0}>80}${color FF3333}${else}${if_match ${cpu cpu0}>50}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${cpu cpu0}%${color0}
+${if_match ${cpu cpu0}>80}${color FF3333}${else}${if_match ${cpu cpu0}>50}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${cpubar cpu0 6,}${color0}
+${top name 1}${alignr}${if_match ${top cpu 1}>50}${color FF3333}${else}${if_match ${top cpu 1}>20}${color FFA300}${else}${color0}${endif}${endif}${top cpu 1}%${color0}
+${top name 2}${alignr}${if_match ${top cpu 2}>50}${color FF3333}${else}${if_match ${top cpu 2}>20}${color FFA300}${else}${color0}${endif}${endif}${top cpu 2}%${color0}
+${top name 3}${alignr}${if_match ${top cpu 3}>50}${color FF3333}${else}${if_match ${top cpu 3}>20}${color FFA300}${else}${color0}${endif}${endif}${top cpu 3}%${color0}
+${top name 4}${alignr}${if_match ${top cpu 4}>50}${color FF3333}${else}${if_match ${top cpu 4}>20}${color FFA300}${else}${color0}${endif}${endif}${top cpu 4}%${color0}
+${top name 5}${alignr}${if_match ${top cpu 5}>50}${color FF3333}${else}${if_match ${top cpu 5}>20}${color FFA300}${else}${color0}${endif}${endif}${top cpu 5}%${color0}
+
+${color2}RAM ${color0}${alignr}${if_match ${memperc}>80}${color FF3333}${else}${if_match ${memperc}>50}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${mem}${color0}
+${if_match ${memperc}>80}${color FF3333}${else}${if_match ${memperc}>50}${color FFA300}${else}${color 8AFF8A}${endif}${endif}${membar 6,}${color0}
+${top_mem name 1}${alignr}${if_match ${top_mem mem 1}>15}${color FF3333}${else}${if_match ${top_mem mem 1}>5}${color FFA300}${else}${color0}${endif}${endif}${top_mem mem_res 1}${color0}
+${top_mem name 2}${alignr}${if_match ${top_mem mem 2}>15}${color FF3333}${else}${if_match ${top_mem mem 2}>5}${color FFA300}${else}${color0}${endif}${endif}${top_mem mem_res 2}${color0}
+${top_mem name 3}${alignr}${if_match ${top_mem mem 3}>15}${color FF3333}${else}${if_match ${top_mem mem 3}>5}${color FFA300}${else}${color0}${endif}${endif}${top_mem mem_res 3}${color0}
+${top_mem name 4}${alignr}${if_match ${top_mem mem 4}>15}${color FF3333}${else}${if_match ${top_mem mem 4}>5}${color FFA300}${else}${color0}${endif}${endif}${top_mem mem_res 4}${color0}
+${top_mem name 5}${alignr}${if_match ${top_mem mem 5}>15}${color FF3333}${else}${if_match ${top_mem mem 5}>5}${color FFA300}${else}${color0}${endif}${endif}${top_mem mem_res 5}${color0}
+

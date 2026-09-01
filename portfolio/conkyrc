@@ -1,0 +1,56 @@
+# **********************************************************************
+# "Portfolio" - widget con datos generales de la cartera de inversion
+# (MyInvestor / Portfolio Performance), a juego con "Sistema", "Temperatura"
+# y "Process Panel". Cotizaciones via API publica de Yahoo Finance.
+# **********************************************************************
+
+background yes
+double_buffer yes
+
+lua_load /home/USUARIO/.conky/scripts/click_actions.lua
+lua_mouse_hook conky_click_portfolio
+
+alignment bottom_left
+
+border_width 1
+default_color white
+default_outline_color white
+default_shade_color white
+draw_borders no
+draw_graph_borders yes
+draw_outline no
+draw_shades no
+
+gap_x 20
+gap_y 20
+no_buffers yes
+out_to_console no
+out_to_stderr no
+extra_newline no
+
+own_window yes
+own_window_type normal
+own_window_transparent yes
+own_window_colour 000000
+own_window_argb_visual no
+own_window_argb_value 0
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+
+minimum_size 210 0
+stippled_borders 0
+update_interval 2.0
+uppercase no
+use_spacer none
+
+use_xft yes
+xftalpha 0.8
+xftfont Droid Sans:size=11
+color0 white
+color1 EAEAEA
+color2 FFA300
+color3 grey
+
+TEXT
+${color2}PORTFOLIO (7d) ${color0}
+${color2}${hr 1}${color0}
+${execpi 300 /home/USUARIO/.conky/scripts/portfolio_widget.sh}
