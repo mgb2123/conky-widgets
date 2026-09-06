@@ -435,6 +435,101 @@ transparencia/hints para descartar que fuera un problema de
 antigua estuviera descartando las directivas `lua_load`/`lua_mouse_hook` —
 ninguna de las dos cosas era la causa real.
 
+## Botón de cambio de monitor (hover)
+
+A petición del usuario: al pasar el ratón sobre cualquiera de los 5
+widgets aparece un pequeño botón circular en su lateral — solo si hay
+más de un monitor conectado — y al clicarlo el widget se mueve al
+siguiente monitor, en la misma posición visual (mismo `gap_x`/`gap_y`
+desde la misma esquina de anclaje).
+
+**Hallazgo clave: no hace falta mover la ventana a mano (nada de
+`xdotool`).** Conky recalcula la posición de la ventana cada
+`update_interval` a partir de `alignment`+`gap_x`+`gap_y` contra el
+*workarea* del monitor indicado por `xinerama_head` (confirmado leyendo
+`src/x11.cc::update_workarea()` y `src/conky.cc::update_text_area()` de
+Conky 1.19.6) — si se moviera la ventana con una herramienta externa,
+Conky la devolvería a su sitio en el siguiente ciclo, porque
+`fixed_pos` solo vale `1` cuando `alignment == none`. La solución
+correcta es **cambiar `xinerama_head` en el `conkyrc` y reiniciar el
+proceso**; los mismos `gap_x`/`gap_y` producen automáticamente "la
+misma posición" en el monitor nuevo. Esto también da la persistencia
+entre reinicios de sesión gratis (el valor queda escrito en el propio
+`conkyrc`, que es lo que ya lee `autostart_widgets.sh`) — no hace falta
+ningún fichero de estado nuevo.
+
+**Mapeo `xinerama_head` ↔ salida física** (verificar con una instancia
+de prueba y `xwininfo` si cambia el hardware de vídeo, no es garantía
+universal de X11): `xinerama_head 0` (implícito) = primera salida que
+reporta `xrandr --query`; `xinerama_head 1` = segunda, y así sucesivamente
+en el mismo orden.
+
+**Eventos de ratón usados**: `lua_mouse_hook` también dispara
+`mouse_enter`/`mouse_leave`/`mouse_move` además de
+`button_down`/`button_up` — no documentado en la wiki de Conky, pero
+confirmado leyendo `src/mouse-events.cc` y probado en vivo. Solo puede
+haber **un** `lua_mouse_hook` por proceso, así que el hover se gestiona
+ampliando la misma función `conky_click_<widget>` existente, no con un
+hook aparte.
+
+**Dibujo del botón**: función nueva `conky_draw_<widget>`, registrada
+con `lua_draw_hook_post conky_draw_<widget>` en cada `conkyrc` (se
+ejecuta después del texto, así que el botón queda por encima). Dibuja
+un círculo semitransparente + flecha con Cairo
+(`cairo_xlib_surface_create` sobre
+`conky_window.display/drawable/visual`), solo si `hover[widget]` es
+verdadero **y** `xrandr --query` cuenta más de un monitor conectado —
+este conteo se recalcula en cada ciclo mientras dura el hover (no solo
+una vez al arrancar), para reaccionar si se conecta/desconecta un
+monitor en caliente. El botón va en el lado que da "hacia dentro" del
+escritorio: izquierda para Gotham/Temperatura/Sistema/Process Panel
+(`alignment top_right`), derecha para Portfolio (`alignment
+bottom_left`).
+
+**Limitación aceptada — latencia de hasta el `update_interval` del
+widget**: el redibujado real de Conky (`draw_stuff()`, que es donde
+corre `lua_draw_hook_post`) solo se dispara en el ciclo normal de
+`update_interval` o en un resize, no hay forma nativa de forzar un
+redraw inmediato desde Lua tras un `mouse_enter`/`mouse_leave`. El
+botón puede tardar hasta 1-2 s (según el widget) en aparecer/desaparecer
+tras el hover. No es un bug a perseguir, es un límite de la
+arquitectura de Conky.
+
+**Reinicio disparado por el propio clic**: nuevo script
+`scripts/switch_monitor.sh <ruta_conkyrc> <ruta_log>` — cuenta
+monitores conectados con geometría activa vía `xrandr --query`, calcula
+`siguiente = (actual + 1) % n` (con wraparound), reescribe la línea
+`xinerama_head` del `conkyrc` con `sed`, mata el proceso (`pgrep -f --
+"conky -c <ruta>"`) y lo relanza con el patrón de reinicio seguro ya
+documentado. Invocado desde `click_actions.lua` vía
+`os.execute("setsid nohup bash '<script>' '<conkyrc>' '<log>' ...
+&")`. **Gotcha nuevo**: `os.execute()` en Lua ejecuta el comando vía
+`/bin/sh`, que en Ubuntu es `dash` — **`dash` no soporta `disown`**
+(`sh: 1: disown: not found`), a diferencia de `bash`. Por eso la
+llamada desde Lua omite `disown` (no hace falta: el proceso ya queda
+desacoplado por `setsid`), aunque el patrón manual documentado con
+`bash` sí lo use.
+
+**Guarda de seguridad**: si el monitor externo se desconecta entre que
+se muestra el botón y el clic, `switch_monitor.sh` comprueba `n <= 1` y
+no hace nada. Y si `xinerama_head` acaba apuntando a un índice que ya
+no existe (p. ej. tras desconectar un monitor entre sesiones), Conky
+imprime un warning (`invalid head index, ignoring head settings`) y cae
+al workarea de pantalla completa — el widget no desaparece fuera de
+pantalla.
+
+**Corrección a la nota de "Notas operativas" de más abajo**: se ha
+observado empíricamente que Conky 1.19.6 **sí puede recargar en
+caliente el script de `lua_load`** al detectar cambios en su fichero
+(mensaje `Lua script '<ruta>' reloaded` en el log del proceso). Esto
+contradice la afirmación anterior de que "el script Lua se carga una
+sola vez al arrancar el proceso". Aun así, **para cambios en la lista
+de funciones exportadas (nuevas `conky_click_*`/`conky_draw_*`) sigue
+haciendo falta matar y relanzar el proceso** para que el `conkyrc`
+recoja las nuevas líneas `lua_mouse_hook`/`lua_draw_hook_post` — esas sí
+son directivas de configuración, no del script Lua, y no se releen
+solas.
+
 ## Autoarranque al iniciar sesión
 
 **Por qué no vale un script en `.bashrc`/`.profile`**: esos ficheros son

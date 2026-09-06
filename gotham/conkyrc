@@ -6,6 +6,7 @@ total_run_times 0
 
 lua_load /home/USUARIO/.conky/scripts/click_actions.lua
 lua_mouse_hook conky_click_gotham
+lua_draw_hook_post conky_draw_gotham
 
 own_window yes
 own_window_type normal
@@ -26,6 +27,7 @@ default_color white
 default_shade_color red
 default_outline_color green
 alignment top_right
+xinerama_head 0
 gap_x 20
 gap_y 20
 no_buffers yes

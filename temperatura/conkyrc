@@ -8,8 +8,10 @@ double_buffer yes
 
 lua_load /home/USUARIO/.conky/scripts/click_actions.lua
 lua_mouse_hook conky_click_temperatura
+lua_draw_hook_post conky_draw_temperatura
 
 alignment top_right
+xinerama_head 0
 
 border_width 1
 default_color white
